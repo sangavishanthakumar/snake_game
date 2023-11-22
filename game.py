@@ -6,7 +6,7 @@ class Game:
     def __init__(self, number_of_cells, OFF_SET, cell_size, DARK_GREEN, screen):
         self.snake = Snake(OFF_SET, cell_size, DARK_GREEN, screen)
         self.food = Food(self.snake.body, OFF_SET, cell_size, DARK_GREEN, screen, number_of_cells)
-        self.state = "RUNNING"
+        self.state = "STOPPED"
         self.number_of_cells = number_of_cells
 
     def draw(self):

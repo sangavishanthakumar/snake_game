@@ -21,6 +21,7 @@ class Snake:
         self.body.insert(0, self.body[0] + self.direction)  # enlarge snake
         if self.add_segment:
             self.add_segment = False
+        # simulate movement
         else:
             self.body = self.body[:-1]  # remove last element
 
