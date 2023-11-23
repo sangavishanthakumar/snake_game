@@ -8,6 +8,11 @@ from pygame.math import Vector2
 
 pygame.init()
 # settings
+
+buffer_size = 10
+buffer_cell_size = 20
+buffer_offset = 50
+
 title_font = pygame.font.Font(None, 60)
 score_font = pygame.font.Font(None, 40)
 
@@ -19,7 +24,7 @@ number_of_cells = 15
 
 OFF_SET = 75
 
-screen = pygame.display.set_mode((2*OFF_SET + cell_size*number_of_cells, 2*OFF_SET + cell_size*number_of_cells))
+screen = pygame.display.set_mode((2 * OFF_SET + cell_size * number_of_cells, 2 * OFF_SET + cell_size * number_of_cells))
 
 pygame.display.set_caption("Snake Game")
 
@@ -30,6 +35,18 @@ game = Game(number_of_cells, OFF_SET, cell_size, DARK_GREEN, screen)
 SNAKE_UPDATE = pygame.USEREVENT
 # trigger the event every 200 ms
 pygame.time.set_timer(SNAKE_UPDATE, 200)
+
+
+def draw_buffer(screen, buffer, buffer_size, buffer_cell_size, buffer_offset):
+    for i in range(buffer_size):
+        x = OFF_SET + cell_size * number_of_cells + buffer_offset
+        y = OFF_SET + i * buffer_cell_size
+        if i < buffer:
+            color = (0, 255, 0)  # Grün, wenn der Punkt im Buffer ist
+        else:
+            color = (128, 128, 128)  # Grau, wenn der Punkt nicht im Buffer ist
+        pygame.draw.rect(screen, color, (x, y, buffer_cell_size, buffer_cell_size))
+
 
 while True:
     for event in pygame.event.get():
@@ -69,5 +86,9 @@ while True:
     if game.state == "STOPPED":
         highscore_surface = score_font.render("Highscore: " + str(game.highscore), True, DARK_GREEN)
         screen.blit(highscore_surface, (OFF_SET, OFF_SET + cell_size * number_of_cells + 30))
+
+    # draw buffer
+    draw_buffer(screen, game.buffer, buffer_size, buffer_cell_size, buffer_offset)
+
     pygame.display.update()
     clock.tick(60)  # 60 fps
