@@ -3,7 +3,7 @@ from pygame.math import Vector2
 
 
 class Snake:
-    def __init__(self, OFF_SET, cell_size, DARK_GREEN, screen):
+    def __init__(self, OFF_SET, cell_size, DARK_GREEN, screen, number_of_cells):
         self.body = [Vector2(6, 5), Vector2(5, 5), Vector2(4, 5)]
         self.direction = Vector2(1, 0)
         self.add_segment = False
@@ -11,6 +11,8 @@ class Snake:
         self.cell_size = cell_size
         self.DARK_GREEN = DARK_GREEN
         self.screen = screen
+        self.god_mode = False
+        self.number_of_cells = number_of_cells
 
     def draw(self):
         for index, segment in enumerate(self.body):
@@ -24,12 +26,21 @@ class Snake:
                 pygame.draw.rect(self.screen, self.DARK_GREEN, segment_rect) # change body colour here
 
     def update(self):
-        self.body.insert(0, self.body[0] + self.direction)  # enlarge snake
-        if self.add_segment:
-            self.add_segment = False
-        # simulate movement
+        new_head = self.body[0] + self.direction
+
+        if self.god_mode:
+            new_head.x = new_head.x % self.number_of_cells
+            new_head.y = new_head.y % self.number_of_cells
         else:
-            self.body = self.body[:-1]  # remove last element
+            if not 0 <= new_head.x < self.number_of_cells or not 0 <= new_head.y < self.number_of_cells:
+                pass
+
+        self.body.insert(0, new_head)
+        if not self.add_segment:
+            self.body.pop()
+        else:
+            self.add_segment = False
+
 
     def reset(self):
         self.body = [Vector2(6, 5), Vector2(5, 5), Vector2(4, 5)]

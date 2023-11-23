@@ -5,7 +5,7 @@ from speedboost import SpeedBoost
 
 class Game:
     def __init__(self, number_of_cells, OFF_SET, cell_size, DARK_GREEN, screen):
-        self.snake = Snake(OFF_SET, cell_size, DARK_GREEN, screen)
+        self.snake = Snake(OFF_SET, cell_size, DARK_GREEN, screen, number_of_cells)
         self.food = Food(self.snake.body, OFF_SET, cell_size, DARK_GREEN, screen, number_of_cells)
         self.speed_boost = SpeedBoost(number_of_cells, OFF_SET, cell_size, screen)
         self.state = "STOPPED"
@@ -14,6 +14,9 @@ class Game:
         self.speed_boost_timer = 0
         self.score = 0
         self.highscore = 0
+        self.buffer = 0
+        self.buffer_limit = 5 # get buffer overflow when the highscore is > 5
+        self.god_mode_timer = 0
 
     def draw(self):
         self.snake.draw()
@@ -21,6 +24,11 @@ class Game:
         # self.speed_boost.draw()
 
     def update(self):
+        if self.god_mode_timer > 0:
+            self.god_mode_timer -= 1
+            if self.god_mode_timer <= 0:
+                self.snake.god_mode = False
+
         if self.state == "RUNNING":
             self.snake.update()
             self.check_collision_with_food()
@@ -48,11 +56,23 @@ class Game:
 
             self.score += 1
 
+            self.update_buffer()
+
     def check_collision_with_edges(self):
         if self.snake.body[0].x == self.number_of_cells or self.snake.body[0].x == -1:
             self.game_over()
         if self.snake.body[0].y == self.number_of_cells or self.snake.body[0].y == -1:
             self.game_over()
+
+    def update_buffer(self):
+        self.buffer += 1
+        if self.buffer >= self.buffer_limit:
+            self.activate_god_mode()
+            self.buffer = 0  # Buffer zurücksetzen
+
+    def activate_god_mode(self):
+        self.snake.god_mode = True
+        self.god_mode_timer = 600
 
     def game_over(self):
         # add game over behaviour
