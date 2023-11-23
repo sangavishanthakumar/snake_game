@@ -9,6 +9,7 @@ from pygame.math import Vector2
 pygame.init()
 # settings
 
+
 buffer_size = 10
 buffer_cell_size = 20
 buffer_offset = 50
@@ -37,16 +38,52 @@ SNAKE_UPDATE = pygame.USEREVENT
 pygame.time.set_timer(SNAKE_UPDATE, 200)
 
 
-def draw_buffer(screen, buffer, buffer_size, buffer_cell_size, buffer_offset):
+def draw_buffer(screen, buffer_values, buffer_size, x_start, y_start, cell_width, cell_height, font, gap):
     for i in range(buffer_size):
-        x = OFF_SET + cell_size * number_of_cells + buffer_offset
-        y = OFF_SET + i * buffer_cell_size
-        if i < buffer:
-            color = (0, 255, 0)  # Grün, wenn der Punkt im Buffer ist
-        else:
-            color = (128, 128, 128)  # Grau, wenn der Punkt nicht im Buffer ist
-        pygame.draw.rect(screen, color, (x, y, buffer_cell_size, buffer_cell_size))
+        # X-Position bleibt konstant, da der Buffer vertikal gezeichnet wird
+        x = x_start
 
+        # Y-Position berechnet sich aus der Startposition, der Höhe jeder Zelle und dem Abstand zwischen ihnen
+        y = y_start + i * (cell_height + gap)
+
+        # Zeichnen Sie den Hintergrund des Registers
+        pygame.draw.rect(screen, (128, 128, 128), (x, y, cell_width, cell_height))
+
+        # Fügen Sie den Text des Registerwerts hinzu
+        text_surface = font.render(f"{buffer_values[i]:02X}", True, (255, 255, 255))
+
+        # Zentrieren Sie den Text im Rechteck
+        text_rect = text_surface.get_rect(center=(x + cell_width / 2, y + cell_height / 2))
+
+        # Zeichnen Sie den Text auf das Rechteck
+        screen.blit(text_surface, text_rect)
+
+
+def draw_registers(screen, register_values, x_start, y_start, width, height, font):
+    for i, value in enumerate(register_values):
+        # register background
+        pygame.draw.rect(screen, (0, 0, 0), (x_start, y_start + i * height, width, height))
+
+        # register text
+        if value != 0:
+            text_surface = font.render(value, True, (255, 255, 255))
+            screen.blit(text_surface, (x_start + 5, y_start + i * height + 5))
+
+
+# register settings
+cell_width = 50  # register width
+cell_height = 20  # register heigt
+gap = 0.5  # register gap
+
+font_size = 20
+buffer_font = pygame.font.Font(None, font_size)
+
+# buffer placement
+x_start = screen.get_width() - buffer_offset - cell_width
+y_start = OFF_SET
+
+# example buffer
+# buffer_values = [0x10, 0x20, 0x30, 0x40, 0x50]
 
 while True:
     for event in pygame.event.get():
@@ -73,7 +110,16 @@ while True:
             if event.key == pygame.K_RIGHT and game.snake.direction != Vector2(-1, 0):
                 game.snake.direction = Vector2(1, 0)
 
+
+
     screen.fill(GREEN)
+
+    if game.show_overflow_message:
+        overflow_message_surface = score_font.render("Buffer Overflow!", True, (255, 0, 0))
+        x_position = screen.get_width() // 2 - overflow_message_surface.get_width() // 2
+        y_position = screen.get_height() // 2 - overflow_message_surface.get_height() // 2
+        screen.blit(overflow_message_surface, (x_position, y_position))
+
     pygame.draw.rect(screen, DARK_GREEN,
                      (OFF_SET - 5, OFF_SET - 5, cell_size * number_of_cells + 10, cell_size * number_of_cells + 10), 5)
     game.draw()
@@ -88,7 +134,8 @@ while True:
         screen.blit(highscore_surface, (OFF_SET, OFF_SET + cell_size * number_of_cells + 30))
 
     # draw buffer
-    draw_buffer(screen, game.buffer, buffer_size, buffer_cell_size, buffer_offset)
+    # draw_buffer(screen, buffer_values, 5, x_start, y_start, cell_width, cell_height, buffer_font, gap)
+    draw_registers(screen, game.register_values, x_start, y_start, cell_width, cell_height, buffer_font)
 
     pygame.display.update()
     clock.tick(60)  # 60 fps

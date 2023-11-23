@@ -5,6 +5,7 @@ from speedboost import SpeedBoost
 
 class Game:
     def __init__(self, number_of_cells, OFF_SET, cell_size, DARK_GREEN, screen):
+        self.show_overflow_message = False
         self.snake = Snake(OFF_SET, cell_size, DARK_GREEN, screen, number_of_cells)
         self.food = Food(self.snake.body, OFF_SET, cell_size, DARK_GREEN, screen, number_of_cells)
         self.speed_boost = SpeedBoost(number_of_cells, OFF_SET, cell_size, screen)
@@ -15,8 +16,9 @@ class Game:
         self.score = 0
         self.highscore = 0
         self.buffer = 0
-        self.buffer_limit = 5 # get buffer overflow when the highscore is > 5
+        self.buffer_limit = 5  # get buffer overflow when the highscore is > 5
         self.god_mode_timer = 0
+        self.register_values = ['0x00'] * 5  # init 5 "registers" for the buffer
 
     def draw(self):
         self.snake.draw()
@@ -58,6 +60,21 @@ class Game:
 
             self.update_buffer()
 
+            self.update_registers()
+
+    def update_registers(self):
+        hex_score = hex(self.score)[2:].upper().zfill(2)
+        for i in range(len(self.register_values)):
+            if self.register_values[i] == '0x00':
+                self.register_values[i] = '0x'+hex_score
+                break
+        if self.score == 5:
+            self.trigger_buffer_overflow()
+
+    def trigger_buffer_overflow(self):
+        self.show_overflow_message =  True
+        self.register_values = ['0xFF'] * 5
+
     def check_collision_with_edges(self):
         if self.snake.body[0].x == self.number_of_cells or self.snake.body[0].x == -1:
             self.game_over()
@@ -68,7 +85,7 @@ class Game:
         self.buffer += 1
         if self.buffer >= self.buffer_limit:
             self.activate_god_mode()
-            self.buffer = 0  # Buffer zurücksetzen
+            self.buffer = 0
 
     def activate_god_mode(self):
         self.snake.god_mode = True
@@ -82,3 +99,5 @@ class Game:
         if self.score > self.highscore:
             self.highscore = self.score
         self.score = 0
+        self.buffer = 0
+        self.register_values = ['0x00'] * 5
