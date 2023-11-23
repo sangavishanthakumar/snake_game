@@ -14,11 +14,10 @@ class Food:
         self.DARK_GREEN = DARK_GREEN
         self.screen = screen
 
-
     def draw(self):
         food_rect = pygame.Rect(self.OFF_SET + self.position.x * self.cell_size,
                                 self.OFF_SET + self.position.y * self.cell_size, self.cell_size, self.cell_size)
-        pygame.draw.rect(self.screen, self.DARK_GREEN, food_rect)
+        pygame.draw.rect(self.screen, [255,255,255], food_rect)
 
     def generate_random_cell(self):
         x = random.randint(0, self.number_of_cells - 1)
@@ -26,10 +25,17 @@ class Food:
         return Vector2(x, y)
 
     def generate_random_pos(self, snake_body):
-        position = self.generate_random_cell()
-        while position in snake_body:
-            x = random.randint(0, self.number_of_cells - 1)
-            y = random.randint(0, self.number_of_cells - 1)
-            position = self.generate_random_cell()
+        # position = self.generate_random_cell()
+        # while position in snake_body:
+        #     x = random.randint(0, self.number_of_cells - 2)
+        #     y = random.randint(0, self.number_of_cells - 2)
+        #     position = self.generate_random_cell()
+        #
+        # return position
+        while True:
+            x = random.randint(1, self.number_of_cells - 2)
+            y = random.randint(1, self.number_of_cells - 2)
 
-        return position
+            position = Vector2(x, y)
+            if position not in snake_body:
+                return position
