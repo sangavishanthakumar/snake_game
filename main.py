@@ -61,19 +61,20 @@ def draw_buffer(screen, buffer_values, buffer_size, x_start, y_start, cell_width
 
 def draw_registers(screen, register_values, x_start, y_start, width, height, font):
     for i, value in enumerate(register_values):
+
         # register background
-        pygame.draw.rect(screen, (0, 0, 0), (x_start, y_start + i * height, width, height))
+        pygame.draw.rect(screen, DARK_GREEN, (x_start, y_start + i * height, width, height))
 
         # register text
         if value != 0:
-            text_surface = font.render(value, True, (255, 255, 255))
+            text_surface = font.render(value, True, GREEN)
             screen.blit(text_surface, (x_start + 5, y_start + i * height + 5))
 
 
 # register settings
 cell_width = 50  # register width
-cell_height = 20  # register heigt
-gap = 0.5  # register gap
+cell_height = 20  # register height
+
 
 font_size = 20
 buffer_font = pygame.font.Font(None, font_size)
@@ -131,7 +132,7 @@ while True:
     # draw highscore
     if game.state == "STOPPED":
         highscore_surface = score_font.render("Highscore: " + str(game.highscore), True, DARK_GREEN)
-        screen.blit(highscore_surface, (OFF_SET, OFF_SET + cell_size * number_of_cells + 30))
+        screen.blit(highscore_surface, (OFF_SET, OFF_SET + cell_size * number_of_cells + 40))
 
     # draw buffer
     # draw_buffer(screen, buffer_values, 5, x_start, y_start, cell_width, cell_height, buffer_font, gap)
